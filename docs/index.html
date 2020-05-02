@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style type="text/css" media="screen, print">
+        @font-face {
+            font-family: "anime";
+            src: url("https://res.cloudinary.com/dnxcwu6dk/raw/upload/v1587323050/html-css-kitchen/animeace-webfont_mcueg3.woff2") format('woff2'),
+                url("https://res.cloudinary.com/dnxcwu6dk/raw/upload/v1587323050/html-css-kitchen/animeace-webfont_msw6do.woff") format('woff');
+            font-weight: normal;
+            font-style: normal;
+
+        }
+
+        *,
+        *::after,
+        *::before {
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+            font-family: Arial, Helvetica, sans-serif;
+            transition: all 500ms;
+            color: inherit;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 0px;
+        }
+
+        #game-space {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 650px;
+            height: 100%;
+            max-height: 700px;
+        }
+
+
+        #info-caption {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding-left: 20px;
+            min-height: 40px;
+            max-height: 50px;
+        }
+
+
+        #info {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 0px 20px;
+            background-color: rgb(55, 226, 238);
+            color: white;
+        }
+
+        #game {
+            flex: 1 1 auto;
+            flex-direction: column;
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            padding: 10px 30px;
+            border-radius: 15px;
+            background-color: #f3be89;
+            background-image: linear-gradient(90deg,
+                    rgba(3, 2, 3, 0.3) -5%,
+                    rgba(0, 0, 0, 0) 4%,
+                    rgba(3, 2, 3, 0) 96%,
+                    rgba(3, 2, 3, 0.3) 102%),
+                linear-gradient(180deg,
+                    rgba(3, 2, 3, 0.2) -2%,
+                    rgba(0, 0, 0, 0) 4%,
+                    rgba(3, 2, 3, 0) 96%,
+                    rgba(3, 2, 3, 0.2) 100%);
+            box-shadow: 1px 10px 15px .5px #000000;
+        }
+
+        #game * {
+            border: none;
+            outline: none;
+            background-color: transparent;
+            font-family: "anime", sans-serif;
+            color: black;
+        }
+
+
+        .bar {
+            flex: 0 0 auto;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0px 10px 5px 30px;
+            width: 100%;
+            min-height: 30px;
+        }
+
+        .bar div {
+            display: flex;
+        }
+
+        #score-bar .player {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 0px 20px;
+        }
+
+        #score-bar .player:nth-child(1) {
+            border-right: 2px solid rgba(0, 0, 0, 0.603) !important;
+        }
+
+        .player *:nth-child(1) {
+            padding-bottom: 5px;
+        }
+
+        #score-bar #reset {
+            align-self: flex-start;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        #board {
+            flex: 1 1 auto;
+            width: 100%;
+            background-image: radial-gradient(#044a34, black);
+        }
+
+        #board * {
+            background-color: transparent;
+            color: white;
+            border-color: white;
+            text-align: center;
+
+        }
+
+        #board>* {
+            height: 100%;
+            width: 100%;
+        }
+
+        #select-ui {
+            display: flex;
+            flex-direction: column;
+            padding: 0px 30px;
+            padding-top: 90px;
+            z-index: 71;
+            font-size: 25px;
+        }
+
+        #select-ui .buttons {
+            margin-top: 35px;
+        }
+
+        #select-ui button {
+            padding: 7px 13px;
+            margin: 5px 10px;
+            font-family: sans-serif;
+            font-size: 25px;
+            color: rgba(255, 255, 255, .55);
+            border: 2px dashed rgba(255, 255, 255, 0);
+            border-radius: 1000px;
+        }
+
+        #select-ui button:hover,
+        .active {
+            border-color: white;
+            color: white;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            grid-column-gap: 0px;
+            grid-row-gap: 0px;
+            padding: 10px;
+        }
+
+        #game-board .tile {
+            border: 1px solid white;
+            font-size: min(18vw, 110px);
+        }
+
+        #game-board .tile:nth-child(3n) {
+            border-right: none;
+        }
+
+        #game-board .tile:nth-child(3n+1) {
+            border-left: none;
+        }
+
+        #game-board .tile:nth-child(-n+3) {
+            border-top: none;
+        }
+
+        #game-board .tile:nth-last-child(-n+3) {
+            border-bottom: none;
+        }
+
+        .hide {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-space">
+        <div id="info-caption"> <span id="info">Is your turn !</span></div>
+        <div id="game">
+            <div id="score-bar" class="bar ">
+                <div>
+                    <span id="player1" class="player">
+                        <span class="score">0</span>
+                        <span class="name">Player 1</span>
+                    </span>
+                    <span id="player2" class="player">
+                        <span class="score">0</span>
+                        <span class="name">Player 2</span>
+                    </span>
+                </div>
+
+                <button id="reset" class="reset">Reset All</button>
+            </div>
+            <div id="board">
+                <div id="select-ui" class="">
+                    <h1 class="title" style="display: inline-block; line-height: 1em; ">How do you want to play ?</h1>
+                    <div class="buttons">
+                        <button id="1-play" name=true> One Player</button>
+                        <button id="2-play" name=false> Two Player</button>
+                    </div>
+                </div>
+                <div id="game-board" class="hide">
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                </div>
+            </div>
+            <div class="bar"></div>
+        </div>
+    </div>
+    <script>
+
+        Element.prototype.hide = function () {
+            this.classList.add("hide");
+        }
+
+        Element.prototype.show = function () {
+            this.classList.remove("hide");
+        }
+
+        Element.prototype.index = function () {
+            return [].indexOf.call(this.parentNode.children, this);
+        }
+
+        class Player {
+            static signs = ["o", "x", "△", "□"];
+            static signIndex = 0
+
+            constructor({ root, name = "computer", computer = false, score = 0 }) {
+                this.root = root;
+                this.nameElement = this.root.querySelector(".name");
+                this.scoreElement = this.root.querySelector(".score");
+                this.name = name;
+                this.computer = computer;
+                this.score = score;
+                this.sign = Player.signs[Player.signIndex++ % Player.signs.length];
+
+            }
+
+            set name(name) {
+                this._name = name + "";
+                this.nameElement.innerText = this._name
+            }
+
+            get name() {
+                return this._name;
+            }
+
+            set score(score) {
+                this._score = parseInt(score);
+                this.scoreElement.innerText = this._score;
+            }
+
+            get score() {
+                return this._score;
+            }
+
+            toJSON() {
+                return JSON.stringify({
+                    ...this,
+                    name: this.name,
+                    score: this.score
+                })
+            }
+
+        }
+
+        class Game {
+            static notifyTimeout = 400;
+            constructor(root) {
+
+                //setup members
+                this.root = root;
+                this.isComputer = false;
+                this.playerIndex = 0;
+                this.clicks = 0;
+                this.game = {};
+
+                // setup DOM 
+                this.messageElement = this.root.querySelector("#info");
+                this.player1Root = this.root.querySelector("#player1");
+                this.player2Root = this.root.querySelector("#player2");
+                this.resetButton = this.root.querySelector("#reset");
+                this.startPage = this.root.querySelector("#select-ui");
+                this.gameBoard = this.root.querySelector("#game-board");
+                this.gameBoard.clickable = false;
+                this.tiles = this.gameBoard.querySelectorAll(".tile");
+
+                // setup events
+                [].forEach.call(this.startPage.querySelectorAll(".buttons button"), (button) => {
+                    button.onclick = (e) => {
+                        this.isComputer = button.name == "true" ? true : false;
+                        this.start();
+                    }
+                });
+
+                // tile.onclick ( 
+                // check player not clicking during computers turn 
+                // if tile empty mark it, then continue (nextTurn ), else do nothing
+                // )
+
+                [].forEach.call(this.tiles, (tile) => {
+                    tile.onclick = () => {
+                        if (this.gameBoard.clickable && tile.innerText.length == 0) {
+                            this.gameBoard.clickable = false;
+                            this.clicks++;
+                            tile.innerText = this.currentPlayer.sign;
+                            this.check(tile);
+                        }
+                    }
+                });
+
+                // enable resetAll button
+                this.resetButton.onclick = () => this.resetAll();
+
+                // on window close, save game data
+                window.onbeforeunload = (e) => {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    this.save();
+                    return "Your data will be saved, but not the current game";
+                }
+
+                this.init();
+            }
+
+            init() {
+                // hide gameBoard , show startPage
+                this.gameBoard.hide();
+                this.startPage.show();
+                this.notify("Start Game");
+            }
+
+
+            start() {
+                // check and restore saved state, render gameboard, start turn
+                this.notifyTimeout = Game.notifyTimeout * (this.isComputer ? 2 : 1);
+                this.game = JSON.parse(localStorage.getItem("game") || null);
+                if (this.game) {
+                    let data = this.game[this.isComputer ? "1-play" : "vs"] || {};
+                    this.setupPlayers(JSON.parse(data.player1 || null), JSON.parse(data.player2 || null));
+                }
+                else {
+                    this.game = {};
+                    this.setupPlayers();
+                }
+                this.startPage.hide();
+                this.gameBoard.show();
+                this.nextTurn();
+            }
+
+            setupPlayers(player1 = {}, player2 = {}) {
+                player1 = {
+                    name: "Player 1",
+                    ...player1,
+                    root: this.player1Root
+                };
+
+                player2 = {
+                    name: this.isComputer ? "Computer" : "Player 2",
+                    computer: this.isComputer,
+                    ...player2,
+                    root: this.player2Root
+                }
+
+                this.players = [new Player(player1), new Player(player2)];
+            }
+
+            nextTurn() {
+                this.currentPlayer = this.players[this.playerIndex++ % this.players.length];
+                this.notify("Is your turn " + this.currentPlayer.name, () => {
+                    if (this.currentPlayer.computer) {
+                        this.play();
+                    }
+                });
+            }
+
+            play() {
+                // computer plays by clicking random empty tile
+                let tiles = this.gameBoard.querySelectorAll(".tile:empty");
+                tiles[Math.round(Math.random() * (tiles.length - 1))].click();
+            }
+
+            check(tile) {
+                let index = tile.index();
+                let sign = tile.innerText;
+                let match = false;
+                let mod = 3;
+
+                // check if there is any match, vertically, horizontally or diagonaly 
+                let h = index - (index % mod);
+                let v = index % mod;
+
+                match = this.tiles[h].innerText == this.tiles[h + 1].innerText && this.tiles[h + 1].innerText == this.tiles[h + 2].innerText ||
+                    this.tiles[v].innerText == this.tiles[v + mod].innerText && this.tiles[v + mod].innerText == this.tiles[v + 2 * mod].innerText;
+                match |= ([0, 4, 8].indexOf(index) != -1 &&
+                    this.tiles[0].innerText == this.tiles[4].innerText && this.tiles[4].innerText == this.tiles[8].innerText
+                );
+                match |= ([2, 4, 6].indexOf(index) != -1 &&
+                    this.tiles[2].innerText == this.tiles[4].innerText && this.tiles[4].innerText == this.tiles[6].innerText
+                );
+
+                if (match) {
+                    // currentPlayer won, increment score,  notify, reset gameboard ( with playerIndex)
+                    this.currentPlayer.score++;
+                    this.notify(this.currentPlayer.name + " Won !", () => this.reset());
+                }
+                else if (this.clicks == 9) { // all tiles are full number of clicks == 9
+                    this.notify("Draw Game", () => this.reset());
+                }
+                else { // continue game
+                    this.nextTurn();
+                }
+            }
+
+            set message(message) {
+                this._message = message + "";
+                this.messageElement.innerText = this._message;
+            }
+
+            get message() {
+                return this._message;
+            }
+
+            notify(message, callback = () => this) {
+                this.gameBoard.clickable = false;
+                this.message = message;
+                clearTimeout(this.notifyId)
+                this.notifyId = setTimeout(() => {
+                    this.gameBoard.clickable = true;
+                    callback();
+                }, this.notifyTimeout);
+            }
+
+            reset() {
+                this.resetBoard();
+                this.nextTurn();
+            }
+
+            resetBoard() { //empty board, reset playerIndex, clicks, clickable
+                [].forEach.call(this.gameBoard.querySelectorAll(".tile:not(:empty)"), (tile) => tile.innerText = "");
+                this.clicks = 0;
+                this.playerIndex = 0;
+            }
+
+            resetAll() {  // reset board, scores, ...  and go back to startPage
+                this.resetBoard();
+                this.players.forEach(player => player.score = 0);
+                this.save();
+                this.init();
+            }
+
+            save() {
+                this.game[this.isComputer ? "1-play" : "vs"] = {
+                    player1: this.players[0],
+                    player2: this.players[1]
+                }
+                localStorage.setItem("game", JSON.stringify(this.game));
+            }
+        }
+
+        window.onload = function () {
+            TicTacToe = new Game(document.querySelector("#game-space"));
+        }
+    </script>
+</body>
+
+</html>
